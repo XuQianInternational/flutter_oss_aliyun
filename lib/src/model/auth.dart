@@ -64,13 +64,15 @@ class Auth {
     final String date = req.headers['x-oss-date'] ?? '';
     final String headerString = _getHeaderString(req);
     final String resourceString = _getResourceString(bucket, key, req.param);
+    final String resourceStringDecode = Uri.decodeQueryComponent(
+        resourceString);
     final String stringToSign = [
       req.method,
       contentMd5,
       contentType,
       date,
       headerString,
-      resourceString
+      resourceStringDecode,
     ].join("\n");
 
     return EncryptUtil.hmacSign(accessSecret, stringToSign);
@@ -88,11 +90,9 @@ class Auth {
   }
 
   /// sign the resource part information
-  String _getResourceString(
-    String bucket,
-    String fileKey,
-    Map<String, dynamic> param,
-  ) {
+  String _getResourceString(String bucket,
+      String fileKey,
+      Map<String, dynamic> param,) {
     String path = "/";
     if (bucket.isNotEmpty) path += "$bucket/";
     if (fileKey.isNotEmpty) path += fileKey;
